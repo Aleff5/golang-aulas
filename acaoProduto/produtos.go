@@ -1,15 +1,15 @@
-package modelos
+package acaoProduto
 
 import (
 	"github.com/Aleff5/golang-aulas/db"
 )
 
 type Produto struct {
-	Id         int
-	Nome       string
-	Descricao  string
-	Preco      float64
-	Quantidade int
+	Id         int     `json:"id"`
+	Nome       string  `json:"nome"`
+	Descricao  string  `json:"descricao"`
+	Preco      float64 `json:"preco"`
+	Quantidade int     `json:"quantidade"`
 }
 
 // FUNC QUE BUSCA PRODUTOS NO BD PARA ENVIA-LOS P SITE
@@ -47,7 +47,8 @@ func BuscaProdutos() []Produto {
 
 }
 
-// FUNC QUE CRIA PRODUTOS BASEADO NA ENTRADADO SITE
+// FUNC QUE CRIA PRODUTOS BASEADO NA ENTRADADA SITE
+// recebe dados do front
 func CriaNvProduto(nome, descricao string, preco float64, quantidade int) {
 	db := db.ConectaDB()
 
@@ -61,6 +62,8 @@ func CriaNvProduto(nome, descricao string, preco float64, quantidade int) {
 	defer db.Close()
 }
 
+// FUNC QUE DELETA BASEADO NA ENTRADA DO SITE
+// recebe dados do front
 func DeletaProdutos(id string) {
 	db := db.ConectaDB()
 
@@ -89,6 +92,7 @@ func Editor(id string) Produto {
 		if err != nil {
 			panic(err.Error())
 		}
+		produtoAtualizar.Id = id
 		produtoAtualizar.Nome = nome
 		produtoAtualizar.Descricao = descricao
 		produtoAtualizar.Preco = preco
@@ -96,4 +100,15 @@ func Editor(id string) Produto {
 	}
 	defer db.Close()
 	return produtoAtualizar
+}
+
+func Atualiza(id int, nome, descricao string, preco float64, quantidade int) {
+	db := db.ConectaDB()
+
+	atualizador, err := db.Prepare("update produtos set nome=$1, descricao=$2, preco=$3, quantidade=$4 where id=$5")
+	if err != nil {
+		panic(err.Error())
+	}
+	atualizador.Exec(nome, descricao, preco, quantidade, id)
+	defer db.Close()
 }
